@@ -52,22 +52,57 @@ router.get('/', async (req, res) => {
     res.status(500).send();
 });
 
-router.post('/:cart_id/addproduct', async (req, res) => {
-    try {
+
+const getCartDetails = (req, res, next) => {
         const {cart_id} = req.params;
-    const {product_id} = req.query;
+    const {product_id, quantity} = req.body;
     if (!cart_id || !product_id) {
         res.status(401).send()
         return
     }
-    const cart = await db.query(`SELECT * FROM users_cart WHERE user_cart_id = $1`, [cart_id]);
+    req.cart = cart_id;
+    req.product = product_id;
+    req.quantity = quantity;
+    next();
+};
+
+const cartExists = async (req, res, next) => {
+try {
+    const cart = await db.query(`SELECT * FROM users_cart WHERE user_cart_id = $1`, [req.cart]);
     if (cart.rowCount) {
-        const hasProduct = await db.query(`SELECT users_cart_items.*, product_name FROM users_cart_items, products WHERE users_cart_items.product_id = products.product_id AND products.product_id = $1`, [product_id]);
-        if (hasProduct.rowCount) {
-            res.send(hasProduct.rows);
-        }
+        next();
         return;
-    }
+    };
+
+} catch (e) {
+    console.log(e);
+}
+res.status(404).send();
+};
+
+const productExists = async (req, res, next) => {
+try {
+    const product = await db.query(`SELECT * FROM products WHERE product_id = $1`, [req.product]);
+    if (product.rowCount) {
+        next();
+        return;
+    };
+
+} catch (e) {
+    console.log(e);
+}
+res.status(404).send();
+};
+
+
+router.post('/:cart_id/addproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+    try {    
+const newProduct = await db.query(`INSERT INTO users_cart_items (product_id, quantity, user_cart_id) VALUES ($1, $2, $3)`, [req.product, req.quantity, req.cart]);
+
+if (newProduct.rowCount) {
+    res.status(201).send(newProduct.rows);
+    return;
+}
     } catch (e) {
         console.log(e);
     }
