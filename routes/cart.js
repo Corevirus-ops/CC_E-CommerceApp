@@ -52,4 +52,26 @@ router.get('/', async (req, res) => {
     res.status(500).send();
 });
 
+router.post('/:cart_id/addproduct', async (req, res) => {
+    try {
+        const {cart_id} = req.params;
+    const {product_id} = req.query;
+    if (!cart_id || !product_id) {
+        res.status(401).send()
+        return
+    }
+    const cart = await db.query(`SELECT * FROM users_cart WHERE user_cart_id = $1`, [cart_id]);
+    if (cart.rowCount) {
+        const hasProduct = await db.query(`SELECT users_cart_items.*, product_name FROM users_cart_items, products WHERE users_cart_items.product_id = products.product_id AND products.product_id = $1`, [product_id]);
+        if (hasProduct.rowCount) {
+            res.send(hasProduct.rows);
+        }
+        return;
+    }
+    } catch (e) {
+        console.log(e);
+    }
+res.status(500).send();
+});
+
 module.exports = router;
