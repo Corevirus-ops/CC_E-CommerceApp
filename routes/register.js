@@ -22,7 +22,8 @@ const checkValidCharacters = (req, res, next) => {
 
 const checkUserExists = async (req, res, next) => {
     const {name, email} = req.body;
-    req.name, req.email = name, email;
+    req.name = name; 
+    req.email = email;
     const data = await db.query(`SELECT * FROM users WHERE user_email = $1`, [email]);
     if (data.rowCount >= 1) {
         res.status(302).send('This Email Is Already Registered!');
