@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/index');
+const checkValidCharacters = require('./validateChar');
 
-router.post('/', async (req, res) => {
+router.post('/', checkValidCharacters, async (req, res) => {
 try {
     const {id} = req.body;
     if (!id) {
@@ -22,6 +23,10 @@ try {
     console.log(e);
 }
 res.status(500).send();
+});
+
+router.get('/', async (req, res) => {
+
 });
 
 module.exports = router;
