@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
         if (!category) {
             products = await db.query(`SELECT * FROM products`); 
         } else {
-            products = await db.query(`SELECT products.*, category_name FROM products, category WHERE products.category_id = category.category_id AND category_name = $1`, [category]);
+            products = await db.query(`SELECT products.*, category_name FROM products, category WHERE products.category_id = category.category_id AND category.category_id = $1`, [category]);
         }
        if (products?.rows[0]) {
         res.send(products.rows);
@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
         if (!category) {
             product = await db.query(`SELECT * FROM products WHERE product_id = $1`, [id]);
         } else if (category) {
-            product = await db.query(`SELECT products.*, category_name FROM products, category WHERE products.category_id = category.category_id AND product_id = $1 AND category_name = $2`, [id, category]);
+            product = await db.query(`SELECT products.*, category_name FROM products, category WHERE products.category_id = category.category_id AND product_id = $1 AND category.category_id = $2`, [id, category]);
         }
         product?.rows[0] && res.send(product.rows) || res.status(404).send(`No Products Found`);
 
