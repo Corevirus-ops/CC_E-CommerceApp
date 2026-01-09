@@ -10,6 +10,9 @@ app.use(bodyParser.json());
 const registerRouter = require('./routes/register');
 app.use('/register', registerRouter);
 
+const loginRouter = require('./routes/login');
+app.use('/login', loginRouter);
+
 app.listen(PORT, () => {
     console.log(`Listening On Port: ${PORT}`)
 });
