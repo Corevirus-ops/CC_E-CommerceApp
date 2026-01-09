@@ -82,8 +82,14 @@ res.status(404).send();
 
 const productExists = async (req, res, next) => {
 try {
+     const productInTable = await db.query(`SELECT * FROM users_cart_items WHERE product_id = $1`, [req.product]);
+     if (productInTable?.rowCount && req.method == 'POST') {
+        res.status(400).send(`Item Already In Table`);
+        return;
+     }
     const product = await db.query(`SELECT * FROM products WHERE product_id = $1`, [req.product]);
-    if (product.rowCount) {
+
+    if (product?.rowCount) {
         next();
         return;
     };
@@ -97,12 +103,24 @@ res.status(404).send();
 
 router.post('/:cart_id/addproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
     try {    
-const newProduct = await db.query(`INSERT INTO users_cart_items (product_id, quantity, user_cart_id) VALUES ($1, $2, $3)`, [req.product, req.quantity, req.cart]);
-
-if (newProduct.rowCount) {
+const newProduct = await db.query(`INSERT INTO users_cart_items VALUES ($1, $2, $3)`, [req.product, req.quantity, req.cart]);
+if (newProduct?.rowCount) {
     res.status(201).send(newProduct.rows);
     return;
-}
+} 
+    } catch (e) {
+        console.log(e);
+    }
+res.status(500).send();
+});
+
+router.put('/:cart_id/updateproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+    try {    
+const updateProduct = await db.query(`UPDATE users_cart_items SET quantity = $1 WHERE product_id = $2 AND user_cart_id = $3`, [req.quantity, req.product, req.cart]);
+if (updateProduct?.rowCount) {
+    res.status(200).send(updateProduct.rows);
+    return
+};
     } catch (e) {
         console.log(e);
     }
