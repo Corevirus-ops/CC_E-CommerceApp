@@ -3,11 +3,12 @@ const router = express.Router();
 const db = require('../db/index');
 const checkValidCharacters = require('./validateChar');
 
+//not used yet but will be used to verify user with user id etc
 const getUser = async (id) => {
     const user = await db.query(`SELECT * FROM users WHERE user_id = $1`, [id]);
     return user;
 }
-
+//creates a new cart
 router.post('/', checkValidCharacters, async (req, res) => {
 try {
     const {id} = req.body;
@@ -30,6 +31,7 @@ try {
 res.status(500).send();
 });
 
+// used to get current carts attached to the user
 router.get('/', async (req, res) => {
     try {
     const {id} = req.query;
@@ -52,7 +54,7 @@ router.get('/', async (req, res) => {
     res.status(500).send();
 });
 
-
+//simple check to break down and verify data for the cart
 const getCartDetails = (req, res, next) => {
         const {cart_id} = req.params;
     const {product_id, quantity} = req.body;
@@ -192,10 +194,12 @@ try {
         let orderError = 0;
         req.orderDetails = [];
         let length = req.cartItems.length;
+        order = await db.query(`INSERT INTO orders (order_date, order_time, user_id, is_delivered) VALUES (NOW(), NOW(), $1, $2) RETURNING *`, [req.userId, false]);
         await req.cartItems.map(async (item, index) => {
-             order = await db.query(`INSERT INTO orders (order_date, order_time, product_id, order_amount, user_id, is_delivered) VALUES (NOW(), NOW(), $1, $2, $3, $4)`, [item.product_id, item.quantity, req.userId, false]);
-                req.orderDetails.push({[index]: order});
-            if (!order.rowCount) {
+             console.log(order.rows);
+             order_items = await db.query(`INSERT INTO order_items (product_id, order_id, amount) VALUES ($1, $2, $3)`, [item.product_id, order?.rows[0].order_id, item.quantity]);
+                req.orderDetails.push({[`${index}`]: order, [`${index}.1`]: order_items});
+            if (!order?.rowCount || !order_items?.rowCount) {
                 console.log(`Error Occurred With Insert: ${order}`);
                 orderError += 1;
             }
