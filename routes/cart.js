@@ -116,7 +116,7 @@ res.status(500).send();
 
 router.put('/:cart_id/updateproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
     try {    
-const updateProduct = await db.query(`UPDATE users_cart_items SET quantity = $1 WHERE product_id = $2 AND user_cart_id = $3`, [req.quantity, req.product, req.cart]);
+const updateProduct = await db.query(`UPDATE users_cart_items SET quantity = $1 WHERE product_id = $2 AND user_cart_id = $3`, [req.quantity , req.product, req.cart]);
 if (updateProduct?.rowCount) {
     res.status(200).send(updateProduct.rows);
     return
@@ -124,6 +124,38 @@ if (updateProduct?.rowCount) {
     } catch (e) {
         console.log(e);
     }
+res.status(500).send();
+});
+
+router.delete('/:cart_id/removeproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+    try {    
+const deleteProduct = await db.query(`DELETE FROM users_cart_items WHERE product_id = $1 AND user_cart_id = $2`, [req.product, req.cart]);
+       if (deleteProduct?.rowCount) {
+        res.status(204).send();
+       } else if (!deleteProduct?.rowCount) {
+        res.status(404).send();
+       }
+    } catch (e) {
+        console.log(e);
+    }
+res.status(500).send();
+});
+
+router.get('/:cart_id', async (req, res) => {
+try {
+    const {cart_id} = req.params;
+    const cart = await db.query(`SELECT quantity, product_name, product_cost FROM users_cart_items, products WHERE users_cart_items.user_cart_id = $1 AND products.product_id = users_cart_items.product_id`, [cart_id]);
+    if (cart?.rowCount) {
+        res.send(cart.rows);
+        return;
+    } else if (!cart?.rowCount) {
+        res.status(404).send();
+        return;
+    }
+
+} catch (e) {
+    console.log(e);
+}
 res.status(500).send();
 });
 
