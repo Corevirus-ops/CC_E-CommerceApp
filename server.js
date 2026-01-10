@@ -13,6 +13,15 @@ app.use('/register', registerRouter);
 const loginRouter = require('./routes/login');
 app.use('/login', loginRouter);
 
+const productRouter = require('./routes/products');
+app.use('/products', productRouter);
+
+const userRouter = require('./routes/users');
+app.use('/users', userRouter);
+
+const cartRouter = require('./routes/cart');
+app.use('/cart', cartRouter);
+
 app.listen(PORT, () => {
     console.log(`Listening On Port: ${PORT}`)
 });

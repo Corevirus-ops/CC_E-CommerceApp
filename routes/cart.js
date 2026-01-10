@@ -159,4 +159,61 @@ try {
 res.status(500).send();
 });
 
+const getCartItems = async (req, res, next) => {
+try {
+    req.cart = req.params.cart_id;
+    let cartItems;
+    const cart = await db.query(`SELECT * FROM users_cart WHERE user_cart_id = $1`, [req.cart]);
+    const user = await db.query(`SELECT DISTINCT user_id FROM users_cart WHERE user_cart_id = $1`, [req.cart]);   
+  if (cart?.rowCount) {
+    cartItems = await db.query(`SELECT * FROM users_cart_items WHERE user_cart_id = $1`, [req.cart]);
+    if (cartItems?.rowCount) {
+        req.cartItems = cartItems.rows;
+        req.userId = user.rows[0].user_id;
+        next();
+        return;
+    }
+  } if (!cart?.rowCount || !cartItems?.rowCount) {
+    res.status(404).send();
+  }
+} catch (e) {
+    console.log(e);
+    res.status(500).send();
+}
+};
+
+router.post('/:cart_id/checkout', checkValidCharacters, getCartItems, async (req, res) =>  {
+try {
+    const success = true;
+    if (!success) {
+        res.status(400).send(`Payment Failed`);
+    } else if (success) {
+        let order;
+        let orderError = 0;
+        req.orderDetails = [];
+        let length = req.cartItems.length;
+        await req.cartItems.map(async (item, index) => {
+             order = await db.query(`INSERT INTO orders (order_date, order_time, product_id, order_amount, user_id, is_delivered) VALUES (NOW(), NOW(), $1, $2, $3, $4)`, [item.product_id, item.quantity, req.userId, false]);
+                req.orderDetails.push({[index]: order});
+            if (!order.rowCount) {
+                console.log(`Error Occurred With Insert: ${order}`);
+                orderError += 1;
+            }
+            if (index+1 == length) {
+                if (index+1 <= orderError) {
+                    res.status(500).send();
+                } else {
+                    res.status(201).send(req.orderDetails)
+                } return;
+            }
+            });
+    
+    }
+
+} catch (e) {
+    console.log(e);
+    res.status(500).send();
+}
+});
+
 module.exports = router;
