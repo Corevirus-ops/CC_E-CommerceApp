@@ -22,6 +22,9 @@ app.use('/users', userRouter);
 const cartRouter = require('./routes/cart');
 app.use('/cart', cartRouter);
 
+const orderRouter = require('./routes/order');
+app.use('/order', orderRouter);
+
 app.listen(PORT, () => {
     console.log(`Listening On Port: ${PORT}`)
 });
