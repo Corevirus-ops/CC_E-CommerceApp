@@ -48,7 +48,9 @@ CREATE TABLE orders (
     order_date date NOT NULL,
     order_time time NOT NULL,
     product_id int REFERENCES products (product_id),
-    order_amount int NOT NULL
+    order_amount int NOT NULL,
+    user_id int REFERENCES users (user_id),
+    is_delivered boolean
 );
 
 
