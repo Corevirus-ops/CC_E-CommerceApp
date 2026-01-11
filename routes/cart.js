@@ -196,7 +196,6 @@ try {
         let length = req.cartItems.length;
         order = await db.query(`INSERT INTO orders (order_date, order_time, user_id, is_delivered) VALUES (NOW(), NOW(), $1, $2) RETURNING *`, [req.userId, false]);
         await req.cartItems.map(async (item, index) => {
-             console.log(order.rows);
              order_items = await db.query(`INSERT INTO order_items (product_id, order_id, amount) VALUES ($1, $2, $3)`, [item.product_id, order?.rows[0].order_id, item.quantity]);
                 req.orderDetails.push({[`${index}`]: order, [`${index}.1`]: order_items});
             if (!order?.rowCount || !order_items?.rowCount) {

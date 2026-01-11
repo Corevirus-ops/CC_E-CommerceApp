@@ -1,17 +1,38 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 const express = require('express');
 const app = express();
+const passport = require('passport');
+const flash = require('express-flash');
+const session = require('express-session');
 
-require('dotenv').config();
+const {initialize} = require('./passport-auth');
+initialize(passport);
+
 
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
+app.use(flash());
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 const registerRouter = require('./routes/register');
 app.use('/register', registerRouter);
 
-const loginRouter = require('./routes/login');
-app.use('/login', loginRouter);
+//const loginRouter = require('./routes/login');
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/users/profile',
+    failureRedirect: '/login',
+    failureFlash: true
+}));
 
 const productRouter = require('./routes/products');
 app.use('/products', productRouter);
