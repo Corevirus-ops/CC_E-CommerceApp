@@ -29,7 +29,7 @@ app.use('/register', registerRouter);
 
 //const loginRouter = require('./routes/login');
 app.post('/login', passport.authenticate('local', {
-    successRedirect: '/users/profile',
+    successRedirect: '/profile',
     failureRedirect: '/login',
     failureFlash: true
 }));
