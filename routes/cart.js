@@ -103,7 +103,7 @@ res.status(404).send();
 };
 
 
-router.post('/:cart_id/addproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+router.post('/:cart_id/products', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
     try {    
 const newProduct = await db.query(`INSERT INTO users_cart_items VALUES ($1, $2, $3)`, [req.product, req.quantity, req.cart]);
 if (newProduct?.rowCount) {
@@ -116,7 +116,7 @@ if (newProduct?.rowCount) {
 res.status(500).send();
 });
 
-router.put('/:cart_id/updateproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+router.put('/:cart_id/products', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
     try {    
 const updateProduct = await db.query(`UPDATE users_cart_items SET quantity = $1 WHERE product_id = $2 AND user_cart_id = $3`, [req.quantity , req.product, req.cart]);
 if (updateProduct?.rowCount) {
@@ -129,7 +129,7 @@ if (updateProduct?.rowCount) {
 res.status(500).send();
 });
 
-router.delete('/:cart_id/removeproduct', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
+router.delete('/:cart_id/products', checkValidCharacters, getCartDetails, cartExists, productExists, async (req, res) => {
     try {    
 const deleteProduct = await db.query(`DELETE FROM users_cart_items WHERE product_id = $1 AND user_cart_id = $2`, [req.product, req.cart]);
        if (deleteProduct?.rowCount) {
