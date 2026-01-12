@@ -1,0 +1,320 @@
+openapi: 3.0.1
+
+info:
+  title: CC_E-CommerceApp
+  version: 1.0.0
+  description: >
+    An ecommerce portfolio project utilizing the PERN stack from
+    front to back end development.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Users
+  - name: Products
+  - name: Cart
+  - name: Orders
+  - name: Checkout
+  - name: Auth
+
+paths:
+
+  /users:
+    summary: Related to obtaining or updating user information.
+    get:
+      tags: [Users]
+      summary: Get all users shorthand information
+      operationId: get_user
+      responses:
+        "200":
+          description: Users retrieved
+        "500":
+          description: Server error
+
+  /users/{id}:
+    summary: To get or update user by given Id
+    get:
+      tags: [Users]
+      summary: Get specific user by id
+      operationId: get_user_by_id
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: User found
+        "404":
+          description: User not found
+    put:
+      tags: [Users]
+      summary: Update user by id
+      operationId: update_user_by_id
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: User updated
+        "401":
+          description: Unauthorized
+
+  /register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUser"
+      responses:
+        "201":
+          description: User created
+        "400":
+          description: Validation error
+
+  /products:
+    get:
+      tags: [Products]
+      summary: Get all products
+      operationId: getAllProducts
+      responses:
+        "200":
+          description: Products returned
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get product by id
+      operationId: getProductById
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Product found
+        "404":
+          description: Product not found
+
+  # -----------------------------
+  # CART (IMPROVED FROM cart.js)
+  # -----------------------------
+
+  /cart:
+    post:
+      tags: [Cart]
+      summary: Create a new cart for a user
+      operationId: createNewCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCartRequest"
+      responses:
+        "201":
+          description: Cart created
+        "401":
+          description: Missing user ID
+        "500":
+          description: Server error
+
+    get:
+      tags: [Cart]
+      summary: Get all carts assigned to a user
+      operationId: getAllUsersCarts
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        "200":
+          description: User carts retrieved
+        "401":
+          description: Missing user ID
+        "500":
+          description: Server error
+
+  /cart/{cart_id}:
+    get:
+      tags: [Cart]
+      summary: Get cart contents by cart ID
+      operationId: getUsersCartById
+      parameters:
+        - $ref: "#/components/parameters/CartId"
+      responses:
+        "200":
+          description: Cart items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CartItem"
+        "404":
+          description: Cart not found
+
+  /cart/{cart_id}/products:
+    post:
+      tags: [Cart]
+      summary: Add a product to a cart
+      operationId: addNewProductToCart
+      parameters:
+        - $ref: "#/components/parameters/CartId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartProductRequest"
+      responses:
+        "201":
+          description: Product added
+        "400":
+          description: Product already in cart
+        "404":
+          description: Cart or product not found
+
+    put:
+      tags: [Cart]
+      summary: Update product quantity in cart
+      operationId: updateProductInCartByCartId
+      parameters:
+        - $ref: "#/components/parameters/CartId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartProductRequest"
+      responses:
+        "200":
+          description: Product updated
+        "404":
+          description: Cart or product not found
+
+    delete:
+      tags: [Cart]
+      summary: Remove product from cart
+      operationId: deleteProductInCartById
+      parameters:
+        - $ref: "#/components/parameters/CartId"
+      responses:
+        "204":
+          description: Product removed
+        "404":
+          description: Product not found
+
+  /cart/{cart_id}/checkout:
+    post:
+      tags: [Checkout]
+      summary: Checkout cart by cart ID
+      operationId: checkoutByCartId
+      parameters:
+        - $ref: "#/components/parameters/CartId"
+      responses:
+        "201":
+          description: Order created
+        "400":
+          description: Payment failed
+        "404":
+          description: Cart not found
+
+  /order:
+    get:
+      tags: [Orders]
+      summary: Get all orders
+      operationId: getAllOrders
+      responses:
+        "200":
+          description: Orders returned
+
+  /order/{orderid}:
+    get:
+      tags: [Orders]
+      summary: Get order by ID
+      operationId: getOrderById
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+      responses:
+        "200":
+          description: Order found
+        "404":
+          description: Order not found
+
+components:
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    CartId:
+      name: cart_id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+    OrderId:
+      name: orderid
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    RegisterUser:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    CreateCartRequest:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+
+    CartProductRequest:
+      type: object
+      required: [product_id]
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: integer
+          default: 1
+
+    CartItem:
+      type: object
+      properties:
+        quantity:
+          type: integer
+        product_name:
+          type: string
+        product_cost:
+          type: number
+          format: float
