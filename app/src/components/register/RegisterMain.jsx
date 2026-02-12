@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import getURL from "../utils/getURL";
+import { redirect } from "react-router";
 export default function RegisterMain() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -13,10 +14,15 @@ export default function RegisterMain() {
             if (password !== confirmPassword) {
                 setWarning("Passwords Do Not Match!");
                 return;
+            } 
+            if (password.length < 8) {
+                setWarning("Password Must Be At Least 8 Characters Long!");
+                return;
             }
             const res = await fetch(`${getURL()}/register`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: username, email, password})});
             if (res.status === 201) {
-                window.location.href = '/login';
+                 window.location.href = '/';
+                alert("Registration Successful!");
             } else if (res.status === 302) {
                 setWarning("This Email Is Already Registered!");
             } else {
@@ -32,6 +38,8 @@ export default function RegisterMain() {
         useEffect(() => {
             if (password && confirmPassword && password !== confirmPassword) {
                 setWarning("Passwords Do Not Match!");
+            } else if (password.length < 8) {
+                setWarning("Password Must Be At Least 8 Characters Long!");
             } else {
                 setWarning("");
             }
@@ -55,6 +63,7 @@ export default function RegisterMain() {
                     <label>Confirm Password:
                     <input type="password" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                     </label>
+                    <button onClick={() => redirect('/login')} >Already Have An Account?</button>
                     <button type="submit" onClick={handleSubmit}>Submit</button>
                 </form>
             </section>

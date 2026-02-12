@@ -42,7 +42,7 @@ router.post('/', checkValidCharacters, checkUserExists, async (req, res) => {
                 const userInfo = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.email]);
                 const pass = await db.query(`INSERT INTO pass VALUES ($1, $2)`, [userInfo.rows[0].user_id, newPass]); 
             if (user && pass) {
-            res.status(201).send(user);
+            res.status(201).send({...userInfo.rows[0]});
             return;
             } 
                 } 
