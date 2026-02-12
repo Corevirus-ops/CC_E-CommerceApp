@@ -6,6 +6,13 @@ const app = express();
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'http://localhost:3001',
+    credentials: true
+}));
+
 
 const {initialize} = require('./passport-auth');
 initialize(passport);

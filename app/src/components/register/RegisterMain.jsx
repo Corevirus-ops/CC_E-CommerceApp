@@ -1,24 +1,26 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import getURL from "../utils/getURL";
 export default function RegisterMain() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [warning, setWarning] = useState("");
 
    async function handleSubmit(e) {
     try {
         e.preventDefault();
             if (password !== confirmPassword) {
-                alert("Passwords Do Not Match!");
+                setWarning("Passwords Do Not Match!");
                 return;
             }
-            const res = await fetch('/register', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: username, email, password})});
+            const res = await fetch(`${getURL()}/register`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: username, email, password})});
             if (res.status === 201) {
-                alert("Registration Successful!");
+                window.location.href = '/login';
             } else if (res.status === 302) {
-                alert("This Email Is Already Registered!");
+                setWarning("This Email Is Already Registered!");
             } else {
-                alert("Registration Failed!");
+                setWarning("Registration Failed!");
             }
 
     } catch (e) {
@@ -26,6 +28,14 @@ export default function RegisterMain() {
     }
 
         }
+
+        useEffect(() => {
+            if (password && confirmPassword && password !== confirmPassword) {
+                setWarning("Passwords Do Not Match!");
+            } else {
+                setWarning("");
+            }
+        }, [password, confirmPassword]);
 
     return (
         <div>
@@ -38,6 +48,7 @@ export default function RegisterMain() {
                     <label>Email:
                     <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </label>
+                    {warning && <p style={{color: 'red'}}>{warning}</p>}
                     <label>Password:
                     <input type="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                     </label>
