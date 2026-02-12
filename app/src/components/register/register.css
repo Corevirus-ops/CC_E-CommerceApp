@@ -1,0 +1,32 @@
+
+.register-container {
+    height: 100vh;
+    width: 100vw;
+}
+
+
+
+
+.register-container section form {
+    height: 50%;
+    width: 25%;
+        background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.432);
+    padding: 2rem;
+}
+
+.register-container section form label input {
+    width: 60%;
+    text-align: center;
+}
+
+ .form-btn button {
+    width: 50%;
+        background-color: hsl(0, 0%, 80%);
+        transition: all 1.5s ease;
+}
+
+ .form-btn button:hover {
+    background-color: hsl(0, 0%, 50%);
+ }
