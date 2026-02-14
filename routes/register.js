@@ -9,7 +9,7 @@ try {
     const {name, email, password} = req.body;
     const data = await db.query(`SELECT * FROM users WHERE user_email = $1`, [email]);
     if (data.rowCount >= 1) {
-        res.status(302).send('This Email Is Already Registered!');
+        res.status(302).json({ok: false, message: 'This Email Is Already Registered!'});
     } else {
     req.name = name; 
     req.email = email;
@@ -42,10 +42,16 @@ router.post('/', checkValidCharacters, checkUserExists, async (req, res, next) =
                 const userInfo = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.email]);
                 const pass = await db.query(`INSERT INTO pass VALUES ($1, $2)`, [userInfo.rows[0].user_id, newPass]); 
             if (user && pass) {
-            res.status(201).send({...userInfo.rows[0]});
-                next();
-            return;
-            } 
+               return req.login(userInfo.rows[0], (err) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send();
+                    } else {
+                        return res.status(201).json({ok: true, message: 'Registration Successful!', user: userInfo.rows[0]});
+                    }
+                });
+
+            }
                 } 
     } catch (e) {
         console.log(e);

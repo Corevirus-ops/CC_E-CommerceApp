@@ -38,11 +38,7 @@ const checkNotAuthenticated = (req, res, next) => {
     next();
 }
 const registerRouter = require('./routes/register');
-app.use('/register', checkNotAuthenticated, registerRouter, passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/register',
-    failureFlash: true
-}));
+app.use('/register', checkNotAuthenticated, registerRouter);
 
 
 //const loginRouter = require('./routes/login');

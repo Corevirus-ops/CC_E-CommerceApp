@@ -1,14 +1,27 @@
 import { useState, useEffect } from "react";
 import getURL from "../utils/getURL";
-import { redirect } from "react-router";
+import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../reducers/userSlice";
 import './register.css';
 export default function RegisterMain() {
+
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.user);
+    const navigate = useNavigate();
+
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [warning, setWarning] = useState("");
+
+    useEffect(() => {
+        if (user && user.user_id) {
+            navigate('/');
+        }
+    });
 
    async function handleSubmit(e) {
     try {
@@ -22,9 +35,9 @@ export default function RegisterMain() {
                 return;
             }
             const res = await fetch(`${getURL()}/register`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name: username, email, password})});
-            if (res.status === 201) {
-                alert("Registration Successful!");
-                window.location.href = '/';
+            const json = await res.json();
+            if (json.ok) {
+                 dispatch(setUser({...json.user}));
             } else if (res.status === 302) {
                 setWarning("This Email Is Already Registered!");
             } else {
@@ -68,7 +81,7 @@ export default function RegisterMain() {
                     <input type="password" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                     </label>
                     <div className="flex col align-center justify-center gap-1 form-btn">
-                        <button onClick={() => redirect('/login')} >Already Have An Account?</button>
+                        <button onClick={() => navigate('/login')} >Already Have An Account?</button>
                         <button type="submit" onClick={handleSubmit}>Submit</button>
                     </div>
                 </form>
