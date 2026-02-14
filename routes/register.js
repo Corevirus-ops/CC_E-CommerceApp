@@ -22,7 +22,7 @@ try {
     }
 };
 
-//create encrypted password with salt
+
 const cryptPass = async (pass) => {
 try {
     const salt = await bcrypt.genSalt(10);
@@ -34,7 +34,7 @@ try {
     return;
 }
 
-router.post('/', checkValidCharacters, checkUserExists, async (req, res) => {
+router.post('/', checkValidCharacters, checkUserExists, async (req, res, next) => {
     try {
         const newPass = await cryptPass(req.pass);
             if (newPass) {
@@ -43,6 +43,7 @@ router.post('/', checkValidCharacters, checkUserExists, async (req, res) => {
                 const pass = await db.query(`INSERT INTO pass VALUES ($1, $2)`, [userInfo.rows[0].user_id, newPass]); 
             if (user && pass) {
             res.status(201).send({...userInfo.rows[0]});
+                next();
             return;
             } 
                 } 

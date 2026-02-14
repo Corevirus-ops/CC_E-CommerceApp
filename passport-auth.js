@@ -76,12 +76,10 @@ const initialize = (passport) => {
     );
 
     passport.serializeUser((user, done) => {
-        console.log('SERIALIZE:', user.user_id);
         done(null, user.user_id);
     });
 
-    passport.deserializeUser(async (id, done) => {
-        console.log('DESERIALIZE:', id, typeof id);
+    passport.deserializeUser(async (id, done) => { 
         try {
             const user = await getUserById(id);
             done(null, user);
