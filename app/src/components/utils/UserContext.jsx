@@ -1,20 +1,21 @@
 
-import { createContext, useState, useEffect } from "react";
+import { createContext, useEffect } from "react";
+import {setUser} from "../reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 export const UserContext = createContext(); 
     const Context = ({children}) => {
-        const [user, setUser] = useState(() => ({
-            loggedIn: false,
-        }));
+const dispatch = useDispatch();
+const user = useSelector((state) => state.user.user);
+
         useEffect(() => {
             async function fetchUser() {
                 try {
-                    await axios.get(`${process.env.REACT_APP_API_URL}/account`, {credentials: 'include'}).then(res => res.json()).then(data => {
-                        setUser({loggedIn: true, ...data.user});
-                    });
+                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/account`, {withCredentials: true});
+                    dispatch(setUser({loggedIn: true, ...res.data.user}));
                 } catch (e) {
                     console.log(e);
-                    setUser({loggedIn: false});
+                    dispatch(setUser({loggedIn: false}));
                 }
             }
             fetchUser();

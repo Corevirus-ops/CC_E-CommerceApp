@@ -1,40 +1,38 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../reducers/userSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../reducers/userSlice";
 import './login.css';
 export default function LoginMain() {
-        const dispatch = useDispatch();
-    const user = useSelector((state) => state.user.user);
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [warning, setWarning] = useState("");
-
+const user = useSelector((state) => state.user.user);
 
     useEffect(() => {
-        if (user && user.user_id) {
-            navigate('/');
-        }
+if (user.loggedIn) {
+    navigate('/');
+}
     });
 
     async function handleSubmit(e) {
         try {
             e.preventDefault();
-            const res = await fetch(`${process.env.REACT_APP_API_URL}/login`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email, password})});
-            const json = await res.json();
-            if (json.ok) {
-                dispatch(setUser({...json.user}));
-            } else if (res.status === 401) {
-                setWarning("Invalid Email Or Password!");
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {email, password}, {headers: {'Content-Type': 'application/json'}, withCredentials: true});
+            if (res.status === 200) {
+                setWarning(res.data.message);
+                dispatch(setUser({loggedIn: true, ...res.data.user}));
             }
         } catch (e) {
             console.log(e);
-            setWarning("Login Failed!");
+            setWarning(e.response?.data?.message || "Login Failed!");
         }
     }
 

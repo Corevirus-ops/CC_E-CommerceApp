@@ -35,6 +35,7 @@ export default function RegisterMain() {
                 return;
             }
            const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {name: username, email, password}, {headers: {'Content-Type': 'application/json'}});
+           console.log(JSON.stringify(res.data));
               if (res.status === 201) {
                 setWarning(res.data.message);
                 } 

@@ -26,40 +26,60 @@ try {
 const cryptPass = async (pass) => {
 try {
     const salt = await bcrypt.genSalt(10);
-    const newPass = await bcrypt.hash(pass, salt);
-    if (newPass) return newPass
+    return await bcrypt.hash(pass, salt);
 } catch (e) {
         console.log(e);
     }
     return;
 }
 
-router.post('/', checkValidCharacters, checkUserExists, async (req, res, next) => {
+router.post('/', checkValidCharacters, checkUserExists, async (req, res) => {
     try {
         const newPass = await cryptPass(req.pass);
-            if (newPass) {
-                await db.query(`BEGIN`);
-                const user = await db.query(`INSERT INTO users (user_name, user_email) VALUES ($1, $2)`, [req.name, req.email]);
-                const userInfo = await db.query(`SELECT * FROM users WHERE user_email = $1`, [req.email]);
-                await db.query(`INSERT INTO pass VALUES ($1, $2)`, [userInfo.rows[0].user_id, newPass]); 
-                await db.query(`COMMIT`);
-            if (user.rowCount >= 1 ) {
-               req.login(userInfo.rows[0], (err) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(500).send();
-                    } else {
-                        return res.status(201).json({ok: true, message: 'Registration Successful!', user: {...userInfo.rows[0], loggedIn: true}});
-                    }
-                });
 
+        if (!newPass) {
+            return res.status(500).json({ ok: false, message: 'Registration Failed!' });
+        }
+
+        await db.query('BEGIN');
+
+        const user = await db.query(
+            `INSERT INTO users (user_name, user_email)
+             VALUES ($1, $2)
+             RETURNING *`,
+            [req.name, req.email]
+        );
+
+        const userInfo = user.rows[0];
+
+        await db.query(
+            `INSERT INTO pass (user_id, pass)
+             VALUES ($1, $2)`,
+            [userInfo.user_id, newPass]
+        );
+
+        await db.query('COMMIT');
+
+        req.login(userInfo, (err) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ ok: false, message: 'Registration Failed!' });
             }
-                } 
+
+            return res.status(201).json({
+                ok: true,
+                message: 'Registration Successful!',
+                user: { ...userInfo, loggedIn: true }
+            });
+        });
+
     } catch (e) {
         console.log(e);
+        await db.query('ROLLBACK');
+        return res.status(500).json({ ok: false, message: 'Registration Failed!' });
     }
-    // res.status(500).send();
 });
+
 
 
 

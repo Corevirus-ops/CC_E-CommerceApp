@@ -36,14 +36,12 @@ const checkNotAuthenticated = (req, res, next) => {
     next();
 }
 const registerRouter = require('./routes/register');
-app.use('/register', checkNotAuthenticated, registerRouter, passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
-    res.json({ message: 'Logged in successfully', user: req.user });
-});
+app.use('/register', checkNotAuthenticated, registerRouter);
 
 
 //const loginRouter = require('./routes/login');
 app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
-    res.json({ message: 'Logged in successfully', user: req.user });
+    res.json({ message: 'Logged in successfully', user: {...req.user, loggedIn: true} });
 });
 
 
@@ -79,6 +77,7 @@ const cartRouter = require('./routes/cart');
 app.use('/cart', checkAuthenticated, cartRouter);
 
 const orderRouter = require('./routes/order');
+const { log } = require('console');
 app.use('/order', checkAuthenticated, orderRouter);
 
 const PORT = process.env.PORT || 3000;
