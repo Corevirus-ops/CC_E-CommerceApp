@@ -1,12 +1,13 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect} from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import { UserContext } from "../utils/UserContext";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../reducers/userSlice";
 import './register.css';
 export default function RegisterMain() {
 
-    const user = useContext(UserContext);
-
+    const user = useSelector((state) => state.user.user);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
@@ -17,10 +18,9 @@ export default function RegisterMain() {
     const [warning, setWarning] = useState("");
 
     useEffect(() => {
-        // if (user && user.user_id) {
-        //     navigate('/');
-        // }
-        console.log(user);
+         if (user && user.user_id) {
+             navigate('/');
+         }
     });
 
    async function handleSubmit(e) {
@@ -34,10 +34,11 @@ export default function RegisterMain() {
                 setWarning("Password Must Be At Least 8 Characters Long!");
                 return;
             }
-           const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {name: username, email, password}, {headers: {'Content-Type': 'application/json'}});
+           const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {name: username, email, password}, {headers: {'Content-Type': 'application/json'}, withCredentials: true});
            console.log(JSON.stringify(res.data));
               if (res.status === 201) {
                 setWarning(res.data.message);
+                dispatch(setUser({loggedIn: true, ...res.data.user}));
                 } 
            
 

@@ -60,18 +60,15 @@ router.post('/', checkValidCharacters, checkUserExists, async (req, res) => {
 
         await db.query('COMMIT');
 
-        req.login(userInfo, (err) => {
+        req.logIn(userInfo, (err) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json({ ok: false, message: 'Registration Failed!' });
             }
-
-            return res.status(201).json({
-                ok: true,
-                message: 'Registration Successful!',
-                user: { ...userInfo, loggedIn: true }
-            });
+            res.status(201).json({ ok: true, message: 'Registered Successfully!', user: {...userInfo, loggedIn: true} });
         });
+
+        console.log(req.isAuthenticated());
 
     } catch (e) {
         console.log(e);
