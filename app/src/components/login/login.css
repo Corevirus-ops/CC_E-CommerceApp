@@ -1,0 +1,43 @@
+
+.Login-container {
+    width: 100%;
+    height: 100%;
+}
+
+.Login-container form {
+    width: 25%;
+    height: 50%;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.432);
+    padding: 2rem;
+}
+
+.Login-container button {
+    width: 50%;
+    background-color: hsl(0, 0%, 80%);
+    transition: all 1.5s ease;
+}
+
+.Login-container button:hover {
+    background-color: hsl(0, 0%, 50%);
+}
+
+.alt-login {
+    width: 50%;
+}
+
+.alt-login div {
+    width: 100%;
+}
+
+.alt-login button {
+    width: 5%;
+    transform: scale(2.5);
+    background-color: hsl(0, 0%, 100%);
+    transition: all 1.5s ease;
+    margin: 20px;
+}
+.alt-login button:hover {
+    background-color: hsl(0, 0%, 50%);
+}

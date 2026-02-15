@@ -82,6 +82,9 @@ const initialize = (passport) => {
     passport.deserializeUser(async (id, done) => { 
         try {
             const user = await getUserById(id);
+            if (!user) {
+                return done(null, false);
+            }
             done(null, user);
         } catch (err) {
             done(err);

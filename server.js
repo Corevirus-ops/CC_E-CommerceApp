@@ -1,64 +1,74 @@
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
+
 const express = require('express');
-const app = express();
-const passport = require('passport');
-const flash = require('express-flash');
 const session = require('express-session');
+const passport = require('passport');
 const cors = require('cors');
 
-app.use(cors({
-    origin: 'http://localhost:3001',
-    credentials: true
-}));
+const app = express();
 
+app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, 
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 
+  }
+}));
 
 const {initialize} = require('./passport-auth');
 initialize(passport);
 
-
-const bodyParser = require('body-parser');
-const PORT = process.env.PORT || 3000;
-app.use(bodyParser.json());
-
-app.use(flash());
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
-}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 const checkNotAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
-        return res.status(403).send('Already Authenticated!').redirect('/');
+        return res.status(403).json({ error: 'Already Authenticated!' });
     }
     next();
 }
 const registerRouter = require('./routes/register');
-app.use('/register', checkNotAuthenticated, registerRouter);
+app.use('/register', checkNotAuthenticated, registerRouter, passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
+    res.json({ message: 'Logged in successfully', user: req.user });
+});
 
 
 //const loginRouter = require('./routes/login');
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true
-}));
+app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
+    res.json({ message: 'Logged in successfully', user: req.user });
+});
+
 
 const checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.status(401).send('Not Authenticated!').redirect('/login');
+    res.status(401).json({ error: 'Not Authenticated!' });
 }
 
-app.delete('/logout', checkAuthenticated, (req, res) => {
-    req.logOut();
-    res.redirect('/login');
+app.get('/account', (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Not Authenticated!' });
+    }
+    const user = {
+        ...req.user,
+        loggedIn: true
+    }
+    res.json({ user });
 });
+app.delete('/logout', (req, res) => {
+  req.logout();
+  res.json({ message: 'Logged out successfully' });
+});
+
 const productRouter = require('./routes/products');
 app.use('/products', checkAuthenticated, productRouter);
 
@@ -71,6 +81,7 @@ app.use('/cart', checkAuthenticated, cartRouter);
 const orderRouter = require('./routes/order');
 app.use('/order', checkAuthenticated, orderRouter);
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Listening On Port: ${PORT}`)
 });
