@@ -38,7 +38,6 @@ export default function RegisterMain() {
                 return;
             }
            const res = await axios.post(`${process.env.REACT_APP_API_URL}/register`, {name: username, email, password}, {headers: {'Content-Type': 'application/json'}, withCredentials: true});
-           console.log(JSON.stringify(res.data));
               if (res.status === 201) {
                 setWarning(res.data.message);
                 dispatch(setUser({loggedIn: true, ...res.data.user}));
@@ -51,7 +50,7 @@ export default function RegisterMain() {
                 } else {
                     setWarning(e.response?.data?.message || "Registration Failed!");
                 }
-        console.log(e);
+        console.error(e);
     }
 
         }

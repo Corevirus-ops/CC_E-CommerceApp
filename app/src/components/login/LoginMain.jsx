@@ -32,8 +32,8 @@ if (user.loggedIn) {
                 dispatch(setUser({loggedIn: true, ...res.data.user}));
             }
         } catch (e) {
-            console.log(e);
-            setWarning(e.data?.message || "Login Failed!");
+            console.error(e);
+            setWarning(e.response?.data?.message || "Login Failed!");
         }
     }
 

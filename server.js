@@ -40,7 +40,11 @@ app.use('/register', checkNotAuthenticated, registerRouter);
 
 
 //const loginRouter = require('./routes/login');
-app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
+
+app.get('/failedlogin', (req, res) => {
+    res.status(401).json({ message: 'Email or Password is Incorrect!' });
+});
+app.post('/login', passport.authenticate('local', { failureRedirect: '/failedlogin' }), (req, res) => {
     res.json({ message: 'Logged in successfully', user: {...req.user, loggedIn: true} });
 });
 
