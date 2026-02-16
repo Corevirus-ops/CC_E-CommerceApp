@@ -1,4 +1,14 @@
-if (process.env.NODE_ENV !== 'production') require('dotenv').config();
+let options;
+const https = require('https');
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+
+const fs = require('fs');
+options = {
+  key: fs.readFileSync('cert.key'),
+  cert: fs.readFileSync('cert.crt'),
+};
+}
 
 const express = require('express');
 const session = require('express-session');
@@ -7,7 +17,7 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -16,7 +26,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, 
+        secure: true, 
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000 
   }
@@ -47,6 +57,16 @@ app.get('/failedlogin', (req, res) => {
 app.post('/login', passport.authenticate('local', { failureRedirect: '/failedlogin' }), (req, res) => {
     res.json({ message: 'Logged in successfully', user: {...req.user, loggedIn: true} });
 });
+
+app.get('/login/facebook', checkNotAuthenticated, passport.authenticate('facebook', { scope: ['email'] }));
+
+app.get('/facebook/callback',
+  passport.authenticate('facebook', {
+    failureRedirect: '/failedlogin',
+    successRedirect: process.env.CLIENT_URL
+  }),
+  (req, res) => res.json({ message: 'Logged in successfully', user: {...req.user, loggedIn: true} })
+);
 
 
 const checkAuthenticated = (req, res, next) => {
@@ -85,10 +105,12 @@ const cartRouter = require('./routes/cart');
 app.use('/cart', checkAuthenticated, cartRouter);
 
 const orderRouter = require('./routes/order');
-const { log } = require('console');
 app.use('/order', checkAuthenticated, orderRouter);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Listening On Port: ${PORT}`)
+
+const prefix = process.env.NODE_ENV === 'production' ? app : https.createServer(options, app);
+
+prefix.listen(PORT, () => {
+  console.log(`Listening On Port: ${PORT}`)
 });
