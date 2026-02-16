@@ -63,8 +63,12 @@ app.get('/account', (req, res) => {
     res.json({ user });
 });
 app.delete('/logout', (req, res) => {
-  req.logout();
-  res.json({ message: 'Logged out successfully' });
+  req.logout(err => {
+    if (err) {
+      return res.status(500).json({ error: 'Logout Failed!' });
+    }
+    res.json({ message: 'Logged out successfully' });
+  });
 });
 
 const productRouter = require('./routes/products');
