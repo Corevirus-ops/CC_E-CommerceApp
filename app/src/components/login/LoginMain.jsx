@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../reducers/userSlice";
+import Oath from "../Oath";
 import './login.css';
 export default function LoginMain() {
 
@@ -32,7 +33,7 @@ if (user.loggedIn) {
             }
         } catch (e) {
             console.log(e);
-            setWarning(e.response?.data?.message || "Login Failed!");
+            setWarning(e.data?.message || "Login Failed!");
         }
     }
 
@@ -43,31 +44,29 @@ if (user.loggedIn) {
         }, [email, password]);
 
     return (
-        <div className="flex col align-center gap-1 Login-container" onSubmit={(e) => handleSubmit(e)}>
-            <h1>Login Page</h1>
-            <form className="flex col align-center justify-space-between gap-1">
-                <label className="flex justify-space-between gap-1">
-                    Email:
-                    <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
+        <div className="flex col align-center justify-center gap-1 Login-container" >
+            <section className="flex col justify-center gap-1 wrap">
+            <h3>Welcome Back</h3>
+            <p>Enter Your Credentials To Access Your Account</p>
+            <Oath />
+            <form className="flex col align-center justify-center gap-1" onSubmit={(e) => handleSubmit(e)}>
+                <label className="flex col justify-space-between gap-1 fit">
+                    <span>Email:</span>
+                    <div className="flex row gap-1 fit relative app-border main-input">
+                        <input type="email" spellCheck="false" name="email" value={email} onChange={(e) => e.target.value.length <= 50 && setEmail(e.target.value)} required placeholder="✉ D0t@example.com" />
+                   </div>     
                 </label>
-                <label className="flex justify-space-between gap-1">
-                    Password:
-                    <input type={showPassword ? "text" : "password"} name="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <label className="flex col justify-space-between gap-1 fit">
+                    <span>Password:</span>
+                    <div className="flex row justify-space-between gap-1 fit relative app-border main-input">
+                        <input type={showPassword ? "text" : "password"} spellCheck="false" name="password" value={password} onChange={(e) => e.target.value.length <= 30 && setPassword(e.target.value)} required placeholder="⚙ *****" />
+                        <button id="toggleShow" type="button" onClick={() => setShowPassword(!showPassword)}><FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} /></button>
+                    </div>
                 </label>
-                <label className="flex justify-space-between gap-1">
-                    Show Password
-                    <input type="checkbox" checked={showPassword} onChange={() => setShowPassword(!showPassword)} />
-                </label>
-                <button type="submit" >Submit</button>
-                <button onClick={() => navigate('/register')}>Don't Have An Account?</button>
+                <button className="app-border btn btn-contrast" onClick={() => navigate('/register')}>No Account? Sign Up Here</button>
+                <button className="app-border btn btn-main" type="submit" >Submit</button>
                 {warning && <p className="warning">{warning}</p>}
             </form>
-            <section className="flex col align-center justify-center gap-1 alt-login">
-                <h2>Log In With</h2>
-                    <div className="flex align-center justify-center gap-1">
-                <button><FontAwesomeIcon icon={faFacebook} color="blue" /></button>
-                <button><FontAwesomeIcon icon={faGoogle} style={{color: 'hsl(0, 90%, 62%)'}} /></button>
-                    </div>
             </section>
         </div>
     )

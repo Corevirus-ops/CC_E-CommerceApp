@@ -3,6 +3,9 @@ import { useNavigate } from "react-router";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../reducers/userSlice";
+import Oath from "../Oath";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import './register.css';
 export default function RegisterMain() {
 
@@ -65,30 +68,44 @@ export default function RegisterMain() {
 
     return (
         <div className="flex align-center register-container col gap-1" onSubmit={(e) => handleSubmit(e)}>
-            <h1>Register</h1>
-            <section className="flex align-center justify-center col gap-1 fit">
+            <section className="flex col gap-1 fit wrap">
+            <h3>Create Account</h3>
+            <p>Sign Up For New Account To Gain Access</p>
+            <Oath />
                 <form className="flex col gap-1 text-center justify-space-between">
-                    <label className="flex align-center justify-space-between">Username:
-                    <input type="text" name="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                    </label>
-                    <label className="flex align-center justify-space-between">Email:
-                    <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
-                    </label>
-                    <label className="flex align-center justify-space-between">Password:
-                        <div className="flex align-center justify-center fit">
-                    <input type={showPassword ? "text" : "password"} name="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
-                    <button type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Hide" : "Show"}</button>
+                    <label className="flex col align-center justify-space-between">
+                        <span>Username:</span>
+                        <div className="flex row gap-1 fit justify-center align-center relative app-border main-input">
+                    <input type="text" spellCheck="false" name="username" value={username} onChange={(e) => e.target.value.length < 40 && setUsername(e.target.value)} required placeholder="My Name Here" />
                         </div>
                     </label>
-                    <label className="flex align-center justify-space-between">Confirm Password:
-                    <input type="password" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                    </label>
-                    <div className="flex col align-center justify-center gap-1 form-btn">
-                        <button onClick={() => navigate('/login')} >Already Have An Account?</button>
-                        <button type="submit" >Submit</button>
+                    <label className="flex col align-center justify-space-between">
+                        <span>Email:</span>
+                        <div className="flex row gap-1 fit relative justify-center align-center app-border main-input">
+                    <input type="email" spellCheck="false" name="email" value={email} onChange={(e) => e.target.value.length < 50 && setEmail(e.target.value)} required placeholder="✉ D0t@example.com"/>
                     </div>
+                    </label>
+                    <label className="flex col align-center justify-space-between">
+                        <span>Password:</span>
+                        <div className="flex fit justify-center align-center relative app-border main-input">
+                    <input type={showPassword ? "text" : "password"} spellCheck="false" name="password" value={password} onChange={(e) => e.target.value.length < 30 && setPassword(e.target.value)} required placeholder="At Least 8 Characters Long"/>
+                    <button id="toggleShow" type="button" onClick={() => setShowPassword(!showPassword)}><FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} /></button>
+                        </div>
+                    </label>
+                    <label className="flex col align-center justify-space-between">
+                        <span>Confirm Password:</span>
+                        <div className="flex fit justify-center align-center relative app-border main-input">
+                    <input type="password" spellCheck="false" name="confirmPassword" value={confirmPassword} onChange={(e) => e.target.value.length < 30 && setConfirmPassword(e.target.value)}  required placeholder="Confirm Password" />
+                    </div>
+                    </label>
+                    <div className="flex col align-center justify-center gap-1">
+                        <button className="app-border btn btn-contrast" onClick={() => navigate('/login')} >Already Have An Account?</button>
+                        <button className="app-border btn btn-main" type="submit" >Submit</button>
+                    </div>  
                 </form>
-            {warning && <p style={{color: 'red'}}>{warning}</p>}
+                <div className="flex fit gap-1 align-center justify-center">
+            {warning && password.length > 0 && <p className="fit" style={{color: 'red'}}>{warning}</p>}
+                </div>
             </section>
         </div>
     )

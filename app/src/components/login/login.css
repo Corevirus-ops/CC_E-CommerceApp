@@ -4,40 +4,29 @@
     height: 100%;
 }
 
-.Login-container form {
+.Login-container section {
     width: 25%;
     height: 50%;
     background-color: #f0f0f0;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.432);
     padding: 2rem;
+    overflow-y: auto;
 }
 
-.Login-container button {
-    width: 50%;
-    background-color: hsl(0, 0%, 80%);
-    transition: all 1.5s ease;
+.Login-container p {
+    font-size: 0.9rem;
+    color: hsl(0, 0%, 50%);
 }
 
-.Login-container button:hover {
-    background-color: hsl(0, 0%, 50%);
-}
-
-.alt-login {
-    width: 50%;
-}
-
-.alt-login div {
+.Login-container section form {
     width: 100%;
 }
 
-.alt-login button {
-    width: 5%;
-    transform: scale(2.5);
-    background-color: hsl(0, 0%, 100%);
-    transition: all 1.5s ease;
-    margin: 20px;
+.Login-container section div {
+    padding: 0.5rem;
+   width: 90%;
+   height: fit-content;
+
 }
-.alt-login button:hover {
-    background-color: hsl(0, 0%, 50%);
-}
+
