@@ -17,9 +17,10 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true, methods: ['GET', 'POST', 'DELETE', 'PUT'] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -28,7 +29,8 @@ app.use(session({
     cookie: { 
         secure: true, 
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'none' 
   }
 }));
 
@@ -60,13 +62,12 @@ app.post('/login', passport.authenticate('local', { failureRedirect: '/failedlog
 
 app.get('/login/facebook', checkNotAuthenticated, passport.authenticate('facebook', { scope: ['email'] }));
 
-app.get('/facebook/callback',
-  passport.authenticate('facebook', {
-    failureRedirect: '/failedlogin',
-    successRedirect: process.env.CLIENT_URL
-  }),
-  (req, res) => res.json({ message: 'Logged in successfully', user: {...req.user, loggedIn: true} })
-);
+app.get('/facebook/callback', 
+  passport.authenticate('facebook', 
+    { 
+      failureRedirect: '/failedlogin', 
+      successRedirect: `${process.env.CLIENT_URL}/login`,
+    }));
 
 
 const checkAuthenticated = (req, res, next) => {
@@ -86,14 +87,21 @@ app.get('/account', (req, res) => {
     }
     res.json({ user });
 });
-app.delete('/logout', (req, res) => {
-  req.logout(err => {
-    if (err) {
-      return res.status(500).json({ error: 'Logout Failed!' });
-    }
-    res.json({ message: 'Logged out successfully' });
+
+app.delete('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) return next(err);
+
+    req.session.destroy((err) => {
+      if (err) return next(err);
+           res.clearCookie("connect.sid"); 
+
+      return res.status(200).json({ message: 'Logged out' });
+    });
   });
 });
+
+
 
 const productRouter = require('./routes/products');
 app.use('/products', checkAuthenticated, productRouter);
@@ -109,8 +117,6 @@ app.use('/order', checkAuthenticated, orderRouter);
 
 const PORT = process.env.PORT || 3000;
 
-const prefix = process.env.NODE_ENV === 'production' ? app : https.createServer(options, app);
-
-prefix.listen(PORT, () => {
+ https.createServer(options, app).listen(PORT, () => {
   console.log(`Listening On Port: ${PORT}`)
 });

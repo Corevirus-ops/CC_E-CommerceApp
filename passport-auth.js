@@ -27,6 +27,21 @@ const getUserByEmail = async (email) => {
     }
 };
 
+const getUserById = async (id) => {
+    try {
+        const user = await db.query(
+            `SELECT *
+            FROM users
+            WHERE user_id = $1`,
+            [id]
+        );
+        return user?.rows[0] || null;
+    } catch (err) {
+        console.error('Database query error:', err);
+        throw err;
+    }
+};
+
 
 
 const initialize = (passport) => {
@@ -93,7 +108,7 @@ passport.use(new FacebookStrategy({
         );
         user = newUser.rows[0];
       }
-      
+      user.loggedIn = true;
       return done(null, user);
     } catch (err) {
       console.error('Facebook authentication error:', err);
@@ -109,10 +124,10 @@ passport.use(new FacebookStrategy({
     passport.deserializeUser(async (id, done) => { 
         try {
             const user = await getUserById(id);
-            if (!user) {
+            if (!user.user_id) {
                 return done(null, false);
             }
-            done(null, user);
+           return done(null, user);
         } catch (err) {
             done(err);
         }

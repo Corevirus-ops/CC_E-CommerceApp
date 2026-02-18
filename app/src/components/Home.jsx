@@ -13,9 +13,9 @@ export default function Home() {
         if (!user.loggedIn) {
             return;
         }
-        axios.delete(`${process.env.REACT_APP_API_URL}/logout`, {}, {withCredentials: true}).then((res) => {
+        axios.delete(`${process.env.REACT_APP_API_URL}/logout`, {withCredentials: true}).then((res) => {
             if (res.status === 200) {
-                dispatch(setUser({loggedIn: false}));
+                dispatch(setUser({...res.data.user}));
                 alert(res.data.message);
             }
         }).catch((e) => {
