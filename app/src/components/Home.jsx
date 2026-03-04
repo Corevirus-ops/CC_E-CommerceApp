@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useSelector, useDispatch} from "react-redux";
 import { setUser } from "./reducers/userSlice";
 import { useNavigate } from "react-router";
+import logout from './utils/logout';
 
 
 export default function Home() {
@@ -10,17 +10,7 @@ export default function Home() {
     const navigate = useNavigate();
 
     function handleLogout() {
-        if (!user.loggedIn) {
-            return;
-        }
-        axios.delete(`${process.env.REACT_APP_API_URL}/logout`, {withCredentials: true}).then((res) => {
-            if (res.status === 200) {
-                dispatch(setUser({...res.data.user}));
-                alert(res.data.message);
-            }
-        }).catch((e) => {
-            console.log(e);
-        });
+        logout(dispatch, user, setUser);
     }
 
 
