@@ -30,6 +30,10 @@ code {
   justify-content: space-between;
 }
 
+.justify-space-evenly {
+  justify-content: space-evenly;
+}
+
 .justify-end {
   justify-content: flex-end;
 }
@@ -42,12 +46,20 @@ code {
   flex-direction: row;
 }
 
+.margin-auto {
+  margin: auto;
+}
+
 .gap-1 {
   gap: 1em;
 }
 
 .wrap {
   flex-wrap: wrap;
+}
+
+.stretch {
+  justify-content: stretch;
 }
 
 .text-center {
@@ -57,6 +69,10 @@ code {
 .fit {
       height: 100%;
     width: 100%;
+}
+
+.width-fit {
+  width: 100%;
 }
 
 
