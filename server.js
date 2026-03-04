@@ -1,6 +1,8 @@
 let options;
 const https = require('https');
-if (process.env.NODE_ENV !== 'production') {
+// const isProd = process.env.NODE_ENV == 'production';
+const isProd = false;
+if (!isProd) {
     require('dotenv').config();
 
 const fs = require('fs');
@@ -27,10 +29,11 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: true, 
+        secure: isProd, 
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'none' 
+        // sameSite: 'none'
+        sameSite: isProd && 'none' || 'Lax' 
   }
 }));
 
@@ -117,6 +120,7 @@ app.use('/order', checkAuthenticated, orderRouter);
 
 const PORT = process.env.PORT || 3000;
 
- https.createServer(options, app).listen(PORT, () => {
+const listenPrefix = isProd && https.createServer(options, app) || app;
+ listenPrefix.listen(PORT, () => {
   console.log(`Listening On Port: ${PORT}`)
 });

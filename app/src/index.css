@@ -6,6 +6,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: auto;
+  font-size: 1.0em;
 }
 
 code {
@@ -42,7 +43,7 @@ code {
 }
 
 .gap-1 {
-  gap: 1rem;
+  gap: 1em;
 }
 
 .wrap {
@@ -79,7 +80,7 @@ button:hover {
 .btn {
   transition: all 1.5s ease;
   width: 40%;
-  padding: 0.5rem;
+  padding: 0.5em;
 
 }
 
@@ -101,13 +102,14 @@ button:hover {
     outline: none;
     width: 90%;
     text-align: center;
+    background-color: #ffffff00;
 }
 
 #toggleShow {
     border: none;
     background-color: transparent;
     color: hsl(0, 0%, 50%);
-    font-size: 0.8rem;
+    font-size: 0.8em;
     transition: all 1.5s ease;
 }
 
