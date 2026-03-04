@@ -10,12 +10,12 @@
     background-color: #f0f0f0;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.432);
-    padding: 2rem;
+    padding: 2em;
     overflow-y: auto;
 }
 
 .Login-container p {
-    font-size: 0.9rem;
+    font-size: 0.9em;
     color: hsl(0, 0%, 50%);
 }
 
@@ -24,7 +24,7 @@
 }
 
 .Login-container section div {
-    padding: 0.5rem;
+    padding: 0.5em;
    width: 90%;
    height: fit-content;
 
