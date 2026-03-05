@@ -1,12 +1,19 @@
 
 .main-nav {
-    padding: 1em 0;
+    padding: 0.15em 0;
+    font-size: 1.01em;
+    font-weight: 600;
 }
 
-.main-nav div {
-    margin: 1em 3em;
+.main-nav div, .main-nav div a {
+margin: 1em 3em;
 }
 
-.main-nav div a {
-margin: auto;
+.main-nav a {
+ text-decoration: none;
+ color: black;
+ padding: 0.2em;
+ &:hover {
+    color: rgb(49, 48, 48);
+ }
 }
